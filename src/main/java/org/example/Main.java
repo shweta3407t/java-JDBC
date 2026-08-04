@@ -14,25 +14,18 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) {
         StudentRepository studentRepository=new StudentRepository();
-        studentRepository.createStudent(
-                new Student("priti",43,"priti@gmail.com"));
-
-
 
 //        studentRepository.createStudent(
-//                new Student("priti",43,"priti@gmail.com"),
-//               new Student("ankita" , 43 , "ankita@gmailcom"),
-//                new Student("ram " , 21 , "ram@gmail.com")
-//        );
+//                new Student("rav",34,"rav@gmail.com"));
 
-        //studentRepository.updateStudent();
+        studentRepository.updateStudent(1 , new Student("seeya" , 32 , "siya@gmail.com"));
 
-//        studentRepository.deleteStudent();
+//        studentRepository.deleteStudent(8);
 
 
-       // studentRepository.getStudentById(2);
+//        studentRepository.getStudentById(4);
 
-        //studentRepository.getAllStudent();
+//        studentRepository.getAllStudent();
 
 //        studentRepository.allCrud();
      }

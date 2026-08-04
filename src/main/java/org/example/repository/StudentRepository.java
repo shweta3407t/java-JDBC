@@ -14,78 +14,87 @@ public class StudentRepository {
     String username="root";
 
 
+
     public  void  createStudent(Student student){
-        //statement.executeUpdate(sql);   //create /update/ delete    //type-int
-        try{
-            Connection connection= DriverManager.getConnection(url,password,username);
+        String sql= """
+                     insert into students (name,age ,email) values(? , ? , ? )
+                     """;
 
 
-             String sql="insert into students (name,age ,email) values(? , ? , ? ) ";
+        try(Connection connection= DriverManager.getConnection(url,password,username);
 
-
-
-
-             PreparedStatement preparedStatement=connection.prepareStatement(sql);
+             PreparedStatement preparedStatement=connection.prepareStatement(sql); ){
 
              preparedStatement.setString(1 , student.getName());
             preparedStatement.setInt(2 , student.getAge());
             preparedStatement.setString(3 , student.getEmail());
 
 
-            int result=preparedStatement.executeUpdate(sql);
+            int rowAffected = preparedStatement.executeUpdate();
 
-            System.out.println(result);
+            System.out.println(rowAffected);
 
-            if(result == 1){
+            if(rowAffected == 1){
                 System.out.println("Student  created successfully");
             }else {
                 System.out.println("creation failed");
             }
-
-            connection.close();;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
 
-    public  void  updateStudent(){
-        try{
-            Connection connection= DriverManager.getConnection(url,password,username);
-            Statement statement=connection.createStatement();
-            String sql="update students set email='raj@gmail.com'  where id=2 ";
+    public  void  updateStudent(  long id ,Student student ){
+        String sql= """ 
+               update students 
+               set name=?,
+                   age=?,
+                   email=?
+               where id =?
+                """;
 
-            int result=statement.executeUpdate(sql);//create /update/ delete
+        try(Connection connection= DriverManager.getConnection(url,password,username);
+            PreparedStatement preparedStatement=connection.prepareStatement(sql); ){
 
-            if(result == 1){
+            preparedStatement.setString(1 , student.getName());
+            preparedStatement.setInt(2 , student.getAge());
+            preparedStatement.setString(3 , student.getEmail());
+            preparedStatement.setLong(4,id);
+
+            int rowAffected=preparedStatement.executeUpdate( );//create /update/ delete
+
+            if(rowAffected == 1){
                 System.out.println("Student  updated successfully");
             }else {
                 System.out.println("updation failed");
             }
 
-            connection.close();;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public  void  deleteStudent(){
-        try{
-            Connection connection= DriverManager.getConnection(url,password,username);
-            Statement statement=connection.createStatement();
-            String sql="delete from students where id=3";
+    public  void  deleteStudent(long id){
 
-            int result=statement.executeUpdate(sql);//create /update/ delete
+        String sql= """ 
+               delete from students where id =?
+                """;
 
-            if(result == 1){
+
+        try(Connection connection= DriverManager.getConnection(url,password,username);
+            PreparedStatement preparedStatement=connection.prepareStatement(sql); ){
+
+            preparedStatement.setLong(1 , id);
+
+            int rowAffected=preparedStatement.executeUpdate( );//create /update/ delete
+
+            if(rowAffected == 1){
                 System.out.println("Student  deleted successfully");
             }else {
                 System.out.println("deleted failed");
             }
-
-            connection.close();;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -103,16 +112,17 @@ public class StudentRepository {
 
     //statement.executeQuery(sql);  //select    //type-ReseltSet
     public  void  getStudentById(long id){
-        try{
-            Connection connection= DriverManager.getConnection(url,password,username);
+        String sql= """
+                select id ,name ,age ,email from students where id=?
+                """ ;
 
-            Statement statement=connection.createStatement();
-
-            String sql=" " +
-                    "select id , name , age , email from students where id="+id;
+        try(Connection connection= DriverManager.getConnection(url,password,username);
+            PreparedStatement preparedStatement=connection.prepareStatement(sql);){
 
 
-            ResultSet resultSet=statement.executeQuery(sql);   //create /update/ delete
+            preparedStatement.setLong(1 , id);
+
+            ResultSet resultSet=preparedStatement.executeQuery( );   //create /update/ delete
             resultSet.next();
             Student student=mapToStudent(resultSet);
             System.out.println(student);
@@ -127,25 +137,21 @@ public class StudentRepository {
     }
 
     public  void  getAllStudent(){
-        try{
-            Connection connection= DriverManager.getConnection(url,password,username);
 
-            Statement statement=connection.createStatement();
+        String sql= """
+                select id , name,age, email from students
+                """;
+        try(Connection connection= DriverManager.getConnection(url,password,username);
+            PreparedStatement preparedStatement=connection.prepareStatement(sql); ){
 
-            String sql=" " +
-                    "select id , name , age , email from students";
 
-
-            ResultSet resultSet=statement.executeQuery(sql);
+            ResultSet resultSet  = preparedStatement .executeQuery( );
 
             List<Student> studentList =mapToStudentList(resultSet);
             for(Student s : studentList) {
                 System.out.println(s);
             }
 
-
-
-            connection.close();;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -201,16 +207,18 @@ public class StudentRepository {
 
     //statement.execute()  //boolean
     public void allCrud()  {
-        try{
-            Connection connection=DriverManager.getConnection(url,username,password);
-            Statement statement=connection.createStatement();
+        String sql= """
+                select * from students
+                """;
 
-            String sql="select * from students";
+        try(Connection connection= DriverManager.getConnection(url,password,username);
+            PreparedStatement preparedStatement=connection.prepareStatement(sql); ){
 
-            boolean result=statement.execute(sql);
 
-            if(result){
-                ResultSet resultSet=statement.getResultSet();
+            boolean rowAffected=preparedStatement.execute( );
+
+            if(rowAffected){
+                ResultSet resultSet=preparedStatement.getResultSet();
 
                 List<Student > studentList=mapToStudentList(resultSet);
 
@@ -218,11 +226,10 @@ public class StudentRepository {
                     System.out.println(s);
                 }
             }else {
-                statement.getUpdateCount();
+                preparedStatement.getUpdateCount();
             }
 
-            connection.close();
-        }
+         }
         catch (SQLException e) {
             e.printStackTrace();
         }
